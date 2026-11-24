@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2 (Nov 24, 2026): saved answers that arrive late
+
+When an answer saved on another device arrived from the account after its stage was already open, the stage kept showing an empty box, and typing one character replaced the saved answer and kept its old feedback (Measured on Going Concern's migration build with a stand-in database; Inspect & Adapt V42 runs the same code). `craft` now redraws an open stage when its data changes, unless text is being typed in the box. An empty box that has focus is redrawn and keeps its focus. Three page checks cover it; all three fail on v0.2.1. No other change.
+
 ## v0.2.1 (Nov 24, 2026): links with dots
 
 `craft.route` now slugs the id in a link before matching, so `#stage-cf-1.1` and `#packet-CF-1` open the same screens as `#stage-cf-1-1` and `#packet-cf-1`. Before this, a link written with the id's own dots returned false. Found in Inspect & Adapt, whose host carried a workaround regex; that workaround can come out once the app vendors v0.2.1. No other change.

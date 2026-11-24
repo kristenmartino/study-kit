@@ -1,11 +1,11 @@
-/* study-kit 0.2.1 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
+/* study-kit 0.2.2 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
 (function (root) {
 "use strict";
 const M = {}, C = {};
 function req(n) { n = n.replace(/^\.\//, ""); if (!(n in C)) { const m = { exports: {} }; M[n](m, m.exports); C[n] = m.exports; } return C[n]; }
 M["version.js"] = function (module, exports) {
 'use strict';
-module.exports = '0.2.1';
+module.exports = '0.2.2';
 
 };
 M["save.js"] = function (module, exports) {
@@ -327,8 +327,18 @@ function create(cfg) {
   }
   const store = createStore({
     localKey: C.appKey + ':craft:v1', doc: 'craft', field: 'stages', normalize, storage: C.storage,
-    // A remote change redraws the list or packet page, but never the screen being typed on.
-    onRemote() { const sc = H.screen(); if ((sc === 'craft' || sc === 'packet') && !typing()) H.render(); },
+    // A remote change redraws the list or packet page. On a stage it redraws too, unless text is being typed:
+    // an answer saved on another device can arrive after the stage opens, and an empty box left on screen would
+    // let one keystroke replace that answer (found Nov 24, 2026). An empty box keeps its focus across the redraw.
+    onRemote() {
+      const sc = H.screen();
+      if ((sc === 'craft' || sc === 'packet') && !typing()) { H.render(); return; }
+      if (sc !== 'stage' || typeof document === 'undefined') return;
+      const box = document.getElementById(I('text')), focused = !!box && document.activeElement === box;
+      if (typing() && !(focused && box.value === '')) return;
+      H.keepScroll();
+      if (focused) { const b = document.getElementById(I('text')); if (b) { try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); } } }
+    },
     onStatus: paintSaved
   });
   function typing() { if (typeof document === 'undefined') return false; const el = document.activeElement; return !!(el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')); }
