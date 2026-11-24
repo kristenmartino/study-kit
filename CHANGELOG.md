@@ -1,8 +1,12 @@
 # Changelog
 
+## v0.2.0 (Nov 23, 2026): approved
+
+Kristen approved all 26 decisions in `docs/DECISIONS.md` as proposed (21:15 ET) and confirmed Critical Path's role-play fixes are approved. No code change from v0.1.0; the version string and the decisions record changed. First tag an app may pin.
+
 ## v0.1.0 (Nov 23, 2026): proposal
 
-First version, built from Inspect & Adapt V32 (inspect-adapt 8830fa8) with the differences from Going Concern (5ed5ef2) and Critical Path (9fb1d70) resolved as listed in `docs/DECISIONS.md`. Awaiting Kristen's approval. No app uses it yet.
+First version, built from Inspect & Adapt V32 (inspect-adapt 8830fa8) with the differences from Going Concern (5ed5ef2) and Critical Path (9fb1d70) resolved as listed in `docs/DECISIONS.md`. No app uses it yet.
 
 Checks, all Measured on Nov 23, 2026:
 - `test/unit.js`: 56 passed, 0 failed. Includes the idle-write check against a database stand-in that sorts keys like the server, and a control showing the pre-fix comparison keeps writing under the same stand-in.

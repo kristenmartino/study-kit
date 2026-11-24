@@ -1,5 +1,7 @@
 # Migration plans (proposed; nothing migrated)
 
+The engine decisions were approved Nov 23 (v0.2.0). Each plan below still needs Kristen's approval, app by app.
+
 One app at a time, each on its own branch with a pull request, only after Kristen approves that app's plan. Each migration pins a study-kit tag, copies `dist/study-kit.js` and `dist/study-kit.css` into the app's build, deletes the app's own copy of the engine, and must pass the app's full suite. Before publishing, compare the build with the live page. After publishing, check that saved answers still load on the live page with the real database.
 
 ## 1. Inspect & Adapt (first; lowest risk)

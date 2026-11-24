@@ -1,6 +1,8 @@
-# How study-kit 0.1.0 resolves the differences (for Kristen's approval)
+# How study-kit resolves the differences
 
-Approve or change each by number. Base: Inspect & Adapt V32. Codes in brackets point to rows in `docs/INVENTORY.md`. "Option" means an app chooses in its config; the default is what a new app (Blast Radius) gets.
+**Approved by Kristen, Nov 23, 2026, 21:15 ET: all 26, as written below** (v0.2.0). She also confirmed that Critical Path's role-play fixes are approved; under decisions 15–17 they stay off by default in the kit, and each app turns on the ones it wants.
+
+Proposed in v0.1.0. Base: Inspect & Adapt V32. Codes in brackets point to rows in `docs/INVENTORY.md`. "Option" means an app chooses in its config; the default is what a new app (Blast Radius) gets.
 
 ## Craft
 
@@ -44,4 +46,4 @@ Approve or change each by number. Base: Inspect & Adapt V32. Codes in brackets p
 
 ## Versioning
 
-26. **Tags:** `v0.1.0` is this proposal. Once you have ruled on 1–25, the changes go in as `v0.2.0`. Apps pin a tag and copy `dist/study-kit.js` and `dist/study-kit.css` into their build. They never pull from `main`.
+26. **Tags:** `v0.1.0` is the proposal; `v0.2.0` records the approval and is the first tag an app may pin. Apps pin a tag and copy `dist/study-kit.js` and `dist/study-kit.css` into their build. They never pull from `main`.
