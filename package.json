@@ -1,0 +1,17 @@
+{
+  "name": "study-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared engines for Kristen's study apps: Craft (graded written packets), Simulations (stepped runs and live role-plays), the save helper and the 360/390/414 px Playwright checks.",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "node tools/bundle.js",
+    "test": "node tools/bundle.js && node tools/demo.js && node test/unit.js && node test/page.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
