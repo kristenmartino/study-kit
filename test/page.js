@@ -39,7 +39,8 @@ const SAMPLER = () => {
     if (init) await ctx.addInitScript(init);
     const page = await ctx.newPage(); page.setDefaultTimeout(6000);
     page.on('pageerror', e => errs.push(String(e)));
-    page.on('dialog', d => d.accept());
+    // The claude.ai artifact frame refuses native dialogs, so any alert/confirm/prompt is a failure here.
+    page.on('dialog', d => { errs.push('native ' + d.type() + ' dialog: ' + d.message()); d.dismiss(); });
     return { ctx, page };
   };
   const act = (page, name, id) => page.locator('[data-act="' + name + '"]' + (id ? '[data-id="' + id + '"]' : '')).first().click();
@@ -95,6 +96,31 @@ const SAMPLER = () => {
       await fit(page, L + ' role-play score');
       await ctx.close();
     }
+  }
+
+  // ---- 1a. Clear feedback history asks in an in-page dialog (the reference host's confirm), never a native one
+  for (const scheme of SCHEMES) {
+    const { ctx, page } = await newPage({ viewport: { width: 360, height: 800 }, colorScheme: scheme }, () => {
+      window.claude = { use: async n => n === 'sample' ? Object.assign(async () => ({ text: '' }), { json: async () => ({ items: [{ status: 'meets', why: 'ok', rewrite: '' }, { status: 'partly', why: 'thin', rewrite: 'Say 10.0 points.' }, { status: 'meets', why: '', rewrite: '' }, { status: 'meets', why: '', rewrite: '' }, { status: 'meets', why: '', rewrite: '' }], works: 'Clear.', optional: '', changed_mind: '' }) }) : null };
+    });
+    const L = 'confirm ' + scheme;
+    await page.goto(URL + '#stage-dm-1-1'); await page.waitForSelector('#craft-text');
+    await page.locator('#craft-text').fill('Data: the renewal table. Renewal fell from 85.0% to 75.0%.');
+    await act(page, 'fb-ask'); await page.waitForSelector('.fbx .fblist');
+    await act(page, 'fb-reset'); await page.waitForSelector('[role="alertdialog"]');
+    ok(/Clear feedback history\?/.test(await page.locator('[role="alertdialog"]').textContent()), L + ': in-page dialog shows the question');
+    ok(await page.evaluate(() => document.activeElement && document.activeElement.dataset.cfm) === 'cancel', L + ': focus starts on Cancel');
+    await fit(page, L + ' dialog open');
+    await page.keyboard.press('Tab'); await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
+    ok(await page.evaluate(() => !!document.activeElement.closest('[role="alertdialog"]')), L + ': Tab stays inside the dialog');
+    await page.keyboard.press('Escape');
+    ok(await page.locator('[role="alertdialog"]').count() === 0 && await page.locator('.fblist').count() === 1, L + ': Escape closes and keeps the feedback');
+    await act(page, 'fb-reset'); await page.locator('[data-cfm="cancel"]').click();
+    ok(await page.locator('.fblist').count() === 1, L + ': Cancel keeps the feedback');
+    await act(page, 'fb-reset'); await page.locator('[data-cfm="ok"]').click();
+    await page.waitForFunction(() => !document.querySelector('.fblist'));
+    ok(/85\.0%/.test(await page.locator('#craft-text').inputValue()), L + ': Clear removes the rounds and keeps the answer');
+    await ctx.close();
   }
 
   // ---- 1b. links written with the id's own dots and case reach the same screens (v0.2.1)

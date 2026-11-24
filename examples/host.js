@@ -21,7 +21,25 @@
     sampler: () => SAMPLE,
     samplerGone() { SAMPLE = null; },
     toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); },
-    confirm(title, body, ok, cb) { if (window.confirm(title + '\n\n' + body)) cb(); },
+    // In-page dialog (shell.css .scrim/.sheet). The claude.ai artifact frame refuses window.confirm: it returns
+    // without asking, so a native confirm made every button that asks first do nothing on a live page (measured in
+    // Throughput, Nov 24, 2026). Focus starts on Cancel; Escape, Cancel and a tap outside cancel; Tab stays inside.
+    confirm(title, body, ok, cb) {
+      const prev = document.activeElement, d = document.createElement('div');
+      d.className = 'scrim'; d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true');
+      d.setAttribute('aria-labelledby', 'cfm-t'); d.setAttribute('aria-describedby', 'cfm-b');
+      d.innerHTML = '<div class="sheet"><h2 id="cfm-t">' + esc(title) + '</h2><p id="cfm-b">' + esc(body) + '</p>' +
+        '<div class="row"><button class="btn btn-primary" data-cfm="ok">' + esc(ok || 'OK') + '</button><button class="btn" data-cfm="cancel">Cancel</button></div></div>';
+      const close = yes => { d.remove(); document.removeEventListener('keydown', key, true); if (prev && prev.focus) { try { prev.focus(); } catch (e) { /* gone */ } } if (yes) cb(); };
+      const key = e => {
+        if (e.key === 'Escape') { e.preventDefault(); close(false); return; }
+        if (e.key !== 'Tab') return;
+        const b = d.querySelectorAll('button'), first = b[0], last = b[b.length - 1];
+        if (e.shiftKey ? document.activeElement === first : document.activeElement === last) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+      };
+      d.addEventListener('click', e => { const t = e.target.closest('[data-cfm]'); if (t) close(t.dataset.cfm === 'ok'); else if (e.target === d) close(false); });
+      document.addEventListener('keydown', key, true); document.body.appendChild(d); d.querySelector('[data-cfm="cancel"]').focus();
+    },
     copy(text, msg) { try { navigator.clipboard.writeText(text).then(() => host.toast(msg), () => host.toast(text)); } catch (e) { host.toast(text); } },
     linkBase: '',
     lessonTitle: () => null,

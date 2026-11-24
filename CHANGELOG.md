@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased: in-page confirm in the reference host (Nov 24, 2026)
+
+`examples/host.js` now asks for confirmation in an in-page dialog built from `shell.css`'s `.scrim` and `.sheet`. Before, it called `window.confirm`, which the claude.ai artifact frame refuses, so on a live page "Clear feedback history" and any app button that asks first did nothing (Measured in Throughput, Nov 24). Focus starts on Cancel; Escape, Cancel and a tap outside cancel; Tab stays inside the dialog. `test/page.js` now fails on any native alert, confirm or prompt, and checks the dialog in both themes at 360 px. The engines (`dist/`), `css/` and the build tools are unchanged, so no app needs a new vendored copy; apps that copied `host.confirm` from this file should replace it.
+
 ## v0.2.2 (Nov 24, 2026): saved answers that arrive late
 
 When an answer saved on another device arrived from the account after its stage was already open, the stage kept showing an empty box, and typing one character replaced the saved answer and kept its old feedback (Measured on Going Concern's migration build with a stand-in database; Inspect & Adapt V42 runs the same code). `craft` now redraws an open stage when its data changes, unless text is being typed in the box. An empty box that has focus is redrawn and keeps its focus. Three page checks cover it; all three fail on v0.2.1. No other change.
