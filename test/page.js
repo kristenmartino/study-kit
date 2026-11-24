@@ -155,6 +155,62 @@ const SAMPLER = () => {
     await ctx.close();
   }
 
+  // ---- 3b. an answer that arrives from the account after its stage is open is shown, and typing cannot replace it
+  //          unseen (v0.2.2; found migrating Going Concern, Nov 24: an empty box, and one keystroke replaced the answer)
+  {
+    const { ctx, page } = await newPage({}, () => {
+      const saved = { v: 1, ts: 5, stages: { 'dm-1-2': { text: 'SAVED ON ANOTHER DEVICE: investigate the 12 inactive accounts.', ts: 5, self: '', rounds: [{ ts: 5, text: 'SAVED ON ANOTHER DEVICE: investigate the 12 inactive accounts.', fb: { items: [{ status: 'meets', why: '', rewrite: '' }, { status: 'partly', why: '', rewrite: 'Name the owner.' }, { status: 'meets', why: '', rewrite: '' }, { status: 'meets', why: '', rewrite: '' }, { status: 'meets', why: '', rewrite: '' }], works: '', optional: '', changed_mind: '' } }] } } };
+      const docs = { 'data/users/u_late/craft': saved };
+      window.__release = null;
+      const mkRef = p => { const ls = []; const snap = () => ({ exists: !!docs[p], data: () => docs[p] ? JSON.parse(JSON.stringify(docs[p])) : undefined });
+        return { set: async d => { docs[p] = JSON.parse(JSON.stringify(d)); }, onSnapshot: next => { ls.push(next); if (/craft$/.test(p)) window.__release = () => next(snap()); else setTimeout(() => next(snap()), 30); return () => {}; } }; };
+      const refs = {}, db = { doc: p => refs[p] || (refs[p] = mkRef(p)) };
+      window.claude = { use: async n => n === 'db' ? db : n === 'user' ? { id: async () => 'u_late' } : null };
+    });
+    await page.goto(URL + '#stage-dm-1-2'); await page.waitForSelector('#craft-text');
+    await page.waitForFunction(() => typeof window.__release === 'function');
+    ok((await page.locator('#craft-text').inputValue()) === '', 'late data: the stage opens before the account answers');
+    await page.evaluate(() => window.__release()); await page.waitForTimeout(200);
+    ok(/SAVED ON ANOTHER DEVICE/.test(await page.locator('#craft-text').inputValue()) && await page.locator('.fbx').count() === 1, 'late data: the saved answer and its feedback appear when they arrive');
+    await ctx.close();
+  }
+  {
+    const { ctx, page } = await newPage({}, () => {
+      const docs = { 'data/users/u_late2/craft': { v: 1, ts: 5, stages: { 'dm-1-2': { text: 'SAVED ON ANOTHER DEVICE.', ts: 5, self: '', rounds: [] } } } };
+      window.__release = null;
+      const mkRef = p => { const ls = []; const snap = () => ({ exists: !!docs[p], data: () => docs[p] ? JSON.parse(JSON.stringify(docs[p])) : undefined });
+        return { set: async d => { docs[p] = JSON.parse(JSON.stringify(d)); }, onSnapshot: next => { ls.push(next); if (/craft$/.test(p)) window.__release = () => next(snap()); else setTimeout(() => next(snap()), 30); return () => {}; } }; };
+      const refs = {}, db = { doc: p => refs[p] || (refs[p] = mkRef(p)) };
+      window.claude = { use: async n => n === 'db' ? db : n === 'user' ? { id: async () => 'u_late2' } : null };
+    });
+    await page.goto(URL + '#stage-dm-1-2'); await page.waitForSelector('#craft-text');
+    await page.waitForFunction(() => typeof window.__release === 'function');
+    await page.locator('#craft-text').focus();
+    await page.evaluate(() => window.__release()); await page.waitForTimeout(200);
+    ok(/SAVED ON ANOTHER DEVICE/.test(await page.locator('#craft-text').inputValue()), 'late data: an empty box that has focus still takes the saved answer');
+    ok(await page.evaluate(() => document.activeElement && document.activeElement.id) === 'craft-text', 'late data: and keeps focus');
+    await page.locator('#craft-text').press('End'); await page.locator('#craft-text').type(' More.');
+    ok(/SAVED ON ANOTHER DEVICE\. More\./.test(await page.locator('#craft-text').inputValue()), 'late data: typing adds to the saved answer instead of replacing it');
+    await ctx.close();
+  }
+  {
+    // A box with text being typed is never overwritten by a remote change.
+    const { ctx, page } = await newPage({}, () => {
+      const docs = { 'data/users/u_late3/craft': { v: 1, ts: 5, stages: { 'dm-1-2': { text: 'OLDER REMOTE TEXT.', ts: 5, self: '', rounds: [] } } } };
+      window.__release = null;
+      const mkRef = p => { const ls = []; const snap = () => ({ exists: !!docs[p], data: () => docs[p] ? JSON.parse(JSON.stringify(docs[p])) : undefined });
+        return { set: async d => { docs[p] = JSON.parse(JSON.stringify(d)); }, onSnapshot: next => { ls.push(next); if (/craft$/.test(p)) window.__release = () => next(snap()); else setTimeout(() => next(snap()), 30); return () => {}; } }; };
+      const refs = {}, db = { doc: p => refs[p] || (refs[p] = mkRef(p)) };
+      window.claude = { use: async n => n === 'db' ? db : n === 'user' ? { id: async () => 'u_late3' } : null };
+    });
+    await page.goto(URL + '#stage-dm-1-2'); await page.waitForSelector('#craft-text');
+    await page.waitForFunction(() => typeof window.__release === 'function');
+    await page.locator('#craft-text').type('TYPING NOW');
+    await page.evaluate(() => window.__release()); await page.waitForTimeout(200);
+    ok((await page.locator('#craft-text').inputValue()) === 'TYPING NOW', 'late data: text being typed is left alone');
+    await ctx.close();
+  }
+
   await browser.close();
   ok(!errs.length, 'page errors: ' + errs.join(' | '));
   console.log(pass + ' passed, ' + fails.length + ' failed');
