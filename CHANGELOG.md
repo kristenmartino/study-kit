@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1 (Nov 24, 2026): links with dots
+
+`craft.route` now slugs the id in a link before matching, so `#stage-cf-1.1` and `#packet-CF-1` open the same screens as `#stage-cf-1-1` and `#packet-cf-1`. Before this, a link written with the id's own dots returned false. Found in Inspect & Adapt, whose host carried a workaround regex; that workaround can come out once the app vendors v0.2.1. No other change.
+
 ## v0.2.0 (Nov 23, 2026): approved
 
 Kristen approved all 26 decisions in `docs/DECISIONS.md` as proposed (21:15 ET) and confirmed Critical Path's role-play fixes are approved. No code change from v0.1.0; the version string and the decisions record changed. First tag an app may pin.

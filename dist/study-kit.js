@@ -1,11 +1,11 @@
-/* study-kit 0.2.0 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
+/* study-kit 0.2.1 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
 (function (root) {
 "use strict";
 const M = {}, C = {};
 function req(n) { n = n.replace(/^\.\//, ""); if (!(n in C)) { const m = { exports: {} }; M[n](m, m.exports); C[n] = m.exports; } return C[n]; }
 M["version.js"] = function (module, exports) {
 'use strict';
-module.exports = '0.2.0';
+module.exports = '0.2.1';
 
 };
 M["save.js"] = function (module, exports) {
@@ -529,13 +529,14 @@ function create(cfg) {
   function onToggle(e) { if (e.target && e.target.matches && e.target.matches('details[data-pk]')) { H.view().pkOpen = e.target.open; return true; } return false; }
   function onPageHide() { if (Object.keys(store.all()).length) store.saveLocal(); }
   // Links: #craft, #packet-<slug>, #stage-<slug>, matched without regard to case.
+  // The id may also be written with dots (#stage-cf-1.1); route() slugs it before matching.
   function link(kind, id) { return (H.linkBase || '') + '#' + kind + (id ? '-' + slug(id) : ''); }
   function route(hash) {
     const h = String(hash || '').replace(/^#/, '').toLowerCase();
     if (h === 'craft') return openList();
     let m;
-    if ((m = /^packet-(.+)$/.exec(h))) { const p = PACKETS.find(x => slug(x.id) === m[1]); return p ? openPacket(p.id) : false; }
-    if ((m = /^stage-(.+)$/.exec(h))) { const s = Array.from(ST.values()).find(x => slug(x.id) === m[1]); return s ? openStage(s.id) : false; }
+    if ((m = /^packet-(.+)$/.exec(h))) { const p = PACKETS.find(x => slug(x.id) === slug(m[1])); return p ? openPacket(p.id) : false; }
+    if ((m = /^stage-(.+)$/.exec(h))) { const s = Array.from(ST.values()).find(x => slug(x.id) === slug(m[1])); return s ? openStage(s.id) : false; }
     return false;
   }
   // Every id this engine publishes as a link target, for the app's published-ids.json.

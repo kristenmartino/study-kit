@@ -1,6 +1,6 @@
 {
   "name": "study-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Shared engines for Kristen's study apps: Craft (graded written packets), Simulations (stepped runs and live role-plays), the save helper and the 360/390/414 px Playwright checks.",
   "main": "src/index.js",
