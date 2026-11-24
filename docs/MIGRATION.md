@@ -10,7 +10,8 @@ One app at a time, each on its own branch with a pull request, only after Kriste
 - `index.src.html` loses the Craft section (1594–1883) and the Simulations section (1884–2102), about 500 lines. A host object (about 40 lines) wires its existing `render`, `keepScroll`, `backHeader`, `craftHeader`, `toast`, `confirmSheet`, `copyText`, `LBYID`, `fmtDate` and `SAMPLE` into the kit.
 - `craft-build.js` and `sims-build.js` become thin calls to the kit's `loadCraft` and `validateSims` (prefixes CF, RN, RL).
 - Config: `keyStyle: 'slug'`, `appKey: 'inspect-adapt'`, `domain: 'product management'`, `roleplay.learner: 'Product Owner'`, `runNoun: 'PI run'`, `rpHeading: 'Product Owner role-plays'`, plus the current list intro and RN-1's `blurb`, `predNote` and `endLabel`.
-- Behaviour changes users would see: decisions 2, 3, 7, 13 and 18 (if approved). The counterpart prompt gains the plain-text clause and replies lose wrapping quotation marks.
+- Role-play: turn on all of Critical Path's rules (decided by Kristen, Nov 23, 21:25 ET): `roleplay.rules: ['guarded', 'noCoaching', 'noUnpromptedOffer']`, `roleplay.scoring: ['outcomeAgreesWithScore', 'verifiedQuotes']`.
+- Behaviour changes users would see: decisions 2, 3, 7, 13 and 18. The counterpart prompt gains the plain-text clause and Critical Path's three rules, so counterparts hold facts back from blunt questions, stop coaching and stop improving their offers unasked. Replies lose wrapping quotation marks. "Reached" shows only with an overall of 3 or more, and uncovered facts need the counterpart's own words. RL-1 to RL-3 should get a live run each after the migration.
 
 **What could break**
 - Saved Craft answers: none expected. Same document (`data/users/<id>/craft`), same field (`stages`), same slug keys, same localStorage key. Measured: the kit's parser gives byte-identical packets to `craft-build.js`.
