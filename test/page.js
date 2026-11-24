@@ -97,6 +97,20 @@ const SAMPLER = () => {
     }
   }
 
+  // ---- 1b. links written with the id's own dots and case reach the same screens (v0.2.1)
+  {
+    const { ctx, page } = await newPage({ viewport: { width: 360, height: 800 } });
+    await page.goto(URL + '#stage-DM-1.2'); await page.waitForSelector('#craft-text');
+    const h1 = await page.locator('#craft-stage-h').textContent();
+    await page.goto(URL + '#craft'); await page.waitForSelector('.strow, details, h2');
+    await page.goto(URL + '#stage-dm-1-2'); await page.waitForSelector('#craft-text');
+    const h2 = await page.locator('#craft-stage-h').textContent();
+    ok(h1 === h2 && h1.length > 0, 'route: #stage-DM-1.2 opens the same stage as #stage-dm-1-2');
+    await page.goto(URL + '#packet-DM-1'); await page.waitForSelector('.strow');
+    ok(await page.locator('.strow').count() > 0, 'route: #packet-DM-1 opens the packet');
+    await ctx.close();
+  }
+
   // ---- 2. without Claude: worked answer and spoken role-play practice still work
   {
     const { ctx, page } = await newPage({ viewport: { width: 360, height: 800 } });
