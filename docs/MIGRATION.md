@@ -38,11 +38,11 @@ One app at a time, each on its own branch with a pull request, only after Kriste
 
 **Published ids at risk:** none today, because Going Concern has no address routing (other apps cannot link to FX-1). The migration would add `#packet-fx-1` and `#stage-fx-1-<n>` routes. From then on they are published and go in a `published-ids.json`, which Going Concern does not have yet (proposed: add one in the same pull request).
 
-## 3. Critical Path (role-play only; optional)
+## 3. Critical Path (role-play only; approved Nov 24, critical-path PR #1)
 
 **What changes (if approved)**
 - `rpSystem`, `rpClean`, `rpNorm`, `rpVerified` and the scoring part of `rpEnd` in `build/template.html` are replaced by the kit's `roleplay.js` functions, with config `learner: 'project manager'`, `rules: ['guarded', 'noCoaching', 'noUnpromptedOffer']` and `scoring: ['outcomeAgreesWithScore', 'verifiedQuotes']`. Critical Path keeps its own role-play screen (avatars, typing dots) and its own saving (`items/rp:<id>`). It uses the kit's prompt and scoring functions only, not `sims.create()`.
-- The only prompt change: "1-4 sentences" becomes "1 to 4 sentences" (Measured: otherwise identical on all 6 role-plays). Scores gain clamping to 1–4.
+- Prompt changes: in the counterpart prompt, "1-4 sentences" becomes "1 to 4 sentences" (Measured: otherwise identical on all 6 role-plays). Correction (Nov 24, during the migration): the scorer prompt also changes, "PM" written out as "project manager" in two places ("facts the project manager could uncover", "citing what the project manager said"); otherwise identical on all 6 (Measured). The earlier text said the first change was the only one. Scores gain clamping to 1–4.
 
 **What could break**
 - Best scores: none expected, because saving stays Critical Path's.
