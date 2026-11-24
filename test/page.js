@@ -39,7 +39,8 @@ const SAMPLER = () => {
     if (init) await ctx.addInitScript(init);
     const page = await ctx.newPage(); page.setDefaultTimeout(6000);
     page.on('pageerror', e => errs.push(String(e)));
-    page.on('dialog', d => d.accept());
+    // The artifact frame refuses native dialogs, so a native one here is a bug: dismiss it and fail.
+    page.on('dialog', d => { errs.push('native ' + d.type() + ' dialog: ' + d.message()); d.dismiss(); });
     return { ctx, page };
   };
   const act = (page, name, id) => page.locator('[data-act="' + name + '"]' + (id ? '[data-id="' + id + '"]' : '')).first().click();
@@ -67,6 +68,14 @@ const SAMPLER = () => {
       await act(page, 'fb-ask'); await page.waitForSelector('.fbx .fblist');
       ok(await page.locator('.fblist li.partly .fbrw').count() === 1 && /4 of 5 checklist points met/.test(await page.locator('.fbx').textContent()), L + ': feedback panel shows 4 of 5 with one Change to line');
       await fit(page, L + ' stage feedback');
+      await page.locator('[data-act$="fb-reset"]').click(); await page.waitForSelector('.cfm');
+      ok(await page.locator('.cfm').getAttribute('role') === 'alertdialog' && await page.evaluate(() => document.activeElement.dataset.cfm) === 'cancel', L + ': clear-feedback asks in an in-page dialog, focus on Cancel');
+      await fit(page, L + ' confirm dialog');
+      await page.keyboard.press('Escape');
+      ok(await page.locator('.cfm').count() === 0 && await page.locator('.fbx .fblist').count() === 1, L + ': Escape cancels and keeps the feedback');
+      await page.locator('[data-act$="fb-reset"]').click(); await page.locator('[data-cfm="ok"]').click();
+      ok(await page.locator('.cfm').count() === 0 && await page.locator('.fbx .fblist').count() === 0, L + ': OK clears the feedback history');
+      await act(page, 'fb-ask'); await page.waitForSelector('.fbx .fblist');
       await act(page, 'stage-reveal'); await page.waitForSelector('ol.checklist');
       ok(await page.locator('details[data-pk][open]').count() === 1, L + ': packet fold-out stays open after reveal');
       await fit(page, L + ' stage revealed');
