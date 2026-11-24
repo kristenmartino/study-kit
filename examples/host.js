@@ -21,7 +21,17 @@
     sampler: () => SAMPLE,
     samplerGone() { SAMPLE = null; },
     toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); },
-    confirm(title, body, ok, cb) { if (window.confirm(title + '\n\n' + body)) cb(); },
+    // In-page dialog: the claude.ai artifact frame refuses window.confirm (it returns false at once), so a native
+    // confirm would make every confirmed action silently do nothing there. Found on Throughput's live page, Nov 24.
+    confirm(title, body, ok, cb) {
+      const prev = document.activeElement, d = document.createElement('div');
+      d.className = 'cfm'; d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'cfm-t'); d.setAttribute('aria-describedby', 'cfm-b');
+      d.innerHTML = '<div class="cfm-box"><h2 id="cfm-t">' + esc(title) + '</h2><p id="cfm-b">' + esc(body) + '</p><div class="row"><button class="btn btn-primary" data-cfm="ok">' + esc(ok || 'OK') + '</button><button class="btn" data-cfm="cancel">Cancel</button></div></div>';
+      const close = yes => { d.remove(); document.removeEventListener('keydown', key, true); if (prev && prev.focus) try { prev.focus(); } catch (e) {} if (yes) cb(); };
+      const key = e => { if (e.key === 'Escape') { e.preventDefault(); close(false); } else if (e.key === 'Tab') { const b = d.querySelectorAll('button'); if (e.shiftKey ? document.activeElement === b[0] : document.activeElement === b[b.length - 1]) { e.preventDefault(); (e.shiftKey ? b[b.length - 1] : b[0]).focus(); } } };
+      d.addEventListener('click', e => { const t = e.target.closest('[data-cfm]'); if (t) close(t.dataset.cfm === 'ok'); else if (e.target === d) close(false); });
+      document.addEventListener('keydown', key, true); document.body.appendChild(d); d.querySelector('[data-cfm="cancel"]').focus();
+    },
     copy(text, msg) { try { navigator.clipboard.writeText(text).then(() => host.toast(msg), () => host.toast(text)); } catch (e) { host.toast(text); } },
     linkBase: '',
     lessonTitle: () => null,

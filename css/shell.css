@@ -394,3 +394,9 @@ textarea:focus { outline: none; border-color: var(--marker); box-shadow: 0 0 0 3
   box-shadow: var(--shadow);
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* In-page confirm dialog (host.confirm): the artifact frame refuses window.confirm. */
+.cfm { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.45); }
+.cfm-box { width: min(420px, 100%); background: var(--sheet); color: var(--ink); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; display: grid; gap: 10px; }
+.cfm-box h2 { margin: 0; font-size: 18px; }
+.cfm-box p { margin: 0; color: var(--muted); }

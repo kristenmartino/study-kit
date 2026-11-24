@@ -1,11 +1,11 @@
-/* study-kit 0.2.2 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
+/* study-kit 0.2.3 (kristenmartino/study-kit). Built by tools/bundle.js; do not edit. */
 (function (root) {
 "use strict";
 const M = {}, C = {};
 function req(n) { n = n.replace(/^\.\//, ""); if (!(n in C)) { const m = { exports: {} }; M[n](m, m.exports); C[n] = m.exports; } return C[n]; }
 M["version.js"] = function (module, exports) {
 'use strict';
-module.exports = '0.2.2';
+module.exports = '0.2.3';
 
 };
 M["save.js"] = function (module, exports) {

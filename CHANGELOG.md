@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.3 (Nov 24, 2026): confirm dialog that works in the artifact frame
+
+`examples/host.js` confirmed with `window.confirm`. The claude.ai artifact frame refuses native dialogs and the call returns false at once, so every confirmed action did nothing there: Craft's "Clear feedback history" in any host copied from the example, and in Throughput the mock's Submit and Abandon (Measured on Throughput's live page, Nov 24). The example host now shows an in-page `alertdialog` (focus starts on Cancel; Escape, Cancel or a click outside cancels; Tab stays inside), styled by new `.cfm` rules in `css/shell.css`. `test/page.js` used to accept native dialogs, which hid this; it now fails on any native dialog and checks the in-page one at every width and theme (179 passed; with the v0.2.2 host the new check fails). No engine change: the engines already call `host.confirm`.
+
 ## v0.2.2 (Nov 24, 2026): saved answers that arrive late
 
 When an answer saved on another device arrived from the account after its stage was already open, the stage kept showing an empty box, and typing one character replaced the saved answer and kept its old feedback (Measured on Going Concern's migration build with a stand-in database; Inspect & Adapt V42 runs the same code). `craft` now redraws an open stage when its data changes, unless text is being typed in the box. An empty box that has focus is redrawn and keeps its focus. Three page checks cover it; all three fail on v0.2.1. No other change.
